@@ -1,12 +1,9 @@
 import random
 import sys
 import numpy as np
-from scipy.ndimage import convolve
 
 from connect_four import ConnectFourGame
 from tree import Node, GameState
-
-sys.setrecursionlimit(10000)
 
 
 def expand_game_tree(parent, game, leaves):
@@ -43,18 +40,19 @@ def selection(parent, game, depth, max_depth, leaves):
     return leaves
 
 
-def rollout(node, game, player, n):
+def rollout(node, game, player, n, min):
     sum = 0
     for i in range(0, n):
         game.set_state(node.state)
-        winner = 0
         while (winner := game.get_winner()) == 0:
             game.make_move(game.turn, random.choice(game.get_legal_moves()))
-        sum += 1 if winner == player else 0
+        sum += 1 if winner == player else min
     node.bias = sum / n
 
 
 def add_bias(leaves):
+    if len(leaves) == 0:
+        return
     for leaf in leaves:
         if leaf.parent is None:
             return
@@ -84,25 +82,60 @@ def test(root):
     for child in root.children:
         test(child)
 
-four_game = ConnectFourGame(5, 5)
 
-head = Node(None, GameState(four_game.board, four_game.turn), 0.7)
+def get_leaves(node, leaves):
+    if len(node.children) == 0:
+        leaves.append(node)
+    else:
+        for child in node.children:
+            get_leaves(child, leaves)
+    return leaves
+
+
+def minimax(root, maximizing_player):
+    if len(root.children) == 0:
+        return root.bias
+    if root.state.turn == maximizing_player:
+        root.bias = max(minimax(child, maximizing_player) for child in root.children)
+    else:
+        root.bias = min(minimax(child, maximizing_player) for child in root.children)
+    return root.bias
+
+
+iterations = 2
+initial_probability = 0.2
+selection_depth = 2
+search_rollouts = 1
+
+minimax_rollouts = 3
+
+four_game = ConnectFourGame(6, 7)
+
+head = Node(None, GameState(four_game.board, four_game.turn), initial_probability)
 
 leaves = []
 
-for i in range(0, 2):
-    leaves = selection(head, four_game, 1, 4, leaves)
-
+for i in range(0, iterations):
+    selection(head, four_game, 0, selection_depth, leaves)
+    leaves = get_leaves(head, leaves)
     new_leaves = []
     for leaf in leaves:
         new_leaves += expand_game_tree(leaf, four_game, [])
     for leaf in new_leaves:
-        rollout(leaf, four_game, head.state.turn, 3)
+        rollout(leaf, four_game, head.state.turn, search_rollouts, 0)
     back_prop(new_leaves, head)
 
+leaves = get_leaves(head, [])
+print(f"Generated tree of with {len(leaves)} nodes")
+for leaf in leaves:
+    rollout(leaf, four_game, head.state.turn, minimax_rollouts, -1)
 
+max_val = minimax(head, head.state.turn)
+possible_moves = []
+for child in head.children:
+    if child.bias != max_val:
+        continue
+    optimal_move = np.argwhere(child.state.board - head.state.board).flatten()[1]
+    possible_moves.append(optimal_move)
 
-
-
-
-
+print(f"Optimal: {possible_moves}")
