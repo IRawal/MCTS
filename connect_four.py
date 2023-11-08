@@ -4,10 +4,13 @@ from tree import GameState
 
 
 class ConnectFourGame:
-    def __init__(self, n, m):
+    def __init__(self, n, m, start_board=None, start_turn=1):
         self.size = (n, m)
-        self.board = np.zeros((n, m))
-        self.turn = 1
+        if start_board is not None:
+            self.board = start_board
+        else:
+            self.board = np.zeros((n, m))
+        self.turn = start_turn
 
     def make_move(self, player, col):
         if col >= self.size[1] or self.board[0][col] != 0:
@@ -21,7 +24,7 @@ class ConnectFourGame:
                 if self.board[i + 1][col] != 0:
                     self.board[i][col] = player
                     break
-        self.turn = 1 if self.turn == 2 else 2
+        self.turn *= -1
 
     def get_legal_moves(self):
         return np.argwhere(self.board[:][0] == 0).flatten()
