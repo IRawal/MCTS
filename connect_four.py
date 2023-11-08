@@ -1,5 +1,7 @@
 import numpy as np
 
+from tree import GameState
+
 
 class ConnectFourGame:
     def __init__(self, n, m):
@@ -9,6 +11,8 @@ class ConnectFourGame:
 
     def make_move(self, player, col):
         if col >= self.size[1] or self.board[0][col] != 0:
+            print(self.board)
+            legal_moves = self.get_legal_moves()
             raise Exception()
         if self.board[self.size[0] - 1][col] == 0:
             self.board[self.size[0] - 1][col] = player
@@ -43,3 +47,10 @@ class ConnectFourGame:
                 if self.board[i][j] == self.board[i + 1][j - 1] == self.board[i + 2][j - 2] == self.board[i + 3][j - 3] != 0:
                     return self.board[i][j]
         return 0
+
+    def set_state(self, state: GameState):
+        self.turn = state.turn
+        self.board = state.board.copy()
+
+    def get_state(self):
+        return GameState(self.board, self.turn)
