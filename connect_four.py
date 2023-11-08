@@ -1,5 +1,4 @@
 import numpy as np
-
 from tree import GameState
 
 
@@ -14,8 +13,6 @@ class ConnectFourGame:
 
     def make_move(self, player, col):
         if col >= self.size[1] or self.board[0][col] != 0:
-            print(self.board)
-            legal_moves = self.get_legal_moves()
             raise Exception()
         if self.board[self.size[0] - 1][col] == 0:
             self.board[self.size[0] - 1][col] = player
