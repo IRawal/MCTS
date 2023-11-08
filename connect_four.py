@@ -27,6 +27,8 @@ class ConnectFourGame:
         return np.argwhere(self.board[:][0] == 0).flatten()
 
     def get_winner(self):
+        if len(self.get_legal_moves()) == 0:
+            return -1
         for i in range(self.size[0]):
             for j in range(self.size[1] - 3):
                 if self.board[i][j] == self.board[i][j + 1] == self.board[i][j + 2] == self.board[i][j + 3] != 0:
