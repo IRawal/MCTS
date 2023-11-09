@@ -56,3 +56,17 @@ class ConnectFourGame:
 
     def get_state(self):
         return GameState(self.board, self.turn)
+
+    def print_board(self):
+        for row in self.board:
+            for num in row:
+                if num == 1:
+                    print('\033[93m' + str(1.0) + '\033[0m ', end="")
+                elif num == -1:
+                    print('\033[91m' + str(1.0) + '\033[0m ', end="")
+                else:
+                    print(str(num) + ' ', end="")
+            print()
+        for i in range(0, self.size[1]):
+            print('\033[92m' + str(float(i)) + '\033[0m ', end="")
+        print()

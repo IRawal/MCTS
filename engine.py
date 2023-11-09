@@ -4,7 +4,6 @@ import numpy as np
 from connect_four import ConnectFourGame
 from tree import Node, GameState
 
-
 # Search every child of every leaf and add to tree
 def expand_game_tree(parent, game, leaves):
     game.set_state(parent.state)
@@ -120,6 +119,7 @@ class Engine:
         self.game = ConnectFourGame(6, 7, start_board, start_turn)
 
     def get_best_moves(self):
+
         root = Node(None, GameState(self.game.board, self.game.turn), self.initial_probability)
         leaves = []
         # Perform n iteration of MCTS
@@ -129,6 +129,7 @@ class Engine:
             new_leaves = []
             for leaf in leaves:
                 new_leaves += expand_game_tree(leaf, self.game, [])
+
             for leaf in new_leaves:
                 rollout(leaf, self.game, root.state.turn, self.search_rollouts, 0)
             back_prop(new_leaves, root)
